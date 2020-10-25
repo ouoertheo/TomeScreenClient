@@ -278,7 +278,6 @@ namespace TomeScreenClient
                 FileLogger.Log("Failed to connect to server.", 1);
             }
         }
-        // Called as part of setActivity()
         private async static void getActivity(string _user)
         {
             FileLogger.Log("Calling httpHandler", 3);
@@ -290,7 +289,6 @@ namespace TomeScreenClient
                 FileLogger.Log("Server Response to getActivity: " + response.StatusCode, 2);
                 FileLogger.Log("Server response: " + JsonSerializer.Serialize(data),1);
                 TimeSpan duration;
-                TimeSpan timeTilBreak;
 
                 
                 if (data.nextBreak != 0)
@@ -304,25 +302,23 @@ namespace TomeScreenClient
                     {
                         breakNotification = false;
                     }
-                    timeTilBreak = TimeSpan.FromMilliseconds(data.freeTimeLeft);
                 } else {
-                    timeTilBreak = TimeSpan.Zero;
                     FileLogger.Log("No break cofigured", 2);
                 }
 
                 // Check if data coming in is negative, in the case of time limits, rather than counters from server
-                if (data.total <= 0)
+                if (data.total < 0)
                 {
                     duration = TimeSpan.FromMilliseconds(data.total * -1);
                     FileLogger.Log("getActivity data: " + duration.ToString(), 1);
-                    MyCustomApplicationContext.setTooltip("Total: -" + duration.ToString() + "\r\n Next Break: " + timeTilBreak.ToString());
+                    MyCustomApplicationContext.setTooltip("-" + duration.ToString());
                     LockWorkStation();
                 }
                 else
                 {
                     duration = TimeSpan.FromMilliseconds(data.total);
                     FileLogger.Log("getActivity data: " + duration.ToString(), 1);
-                    MyCustomApplicationContext.setTooltip("Total: " + duration.ToString() + "\r\n Next Break: " + timeTilBreak.ToString());
+                    MyCustomApplicationContext.setTooltip(duration.ToString());
                 }
 
             } catch (Exception e) {
