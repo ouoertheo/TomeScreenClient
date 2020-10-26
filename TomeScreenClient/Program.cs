@@ -291,9 +291,10 @@ namespace TomeScreenClient
                 FileLogger.Log("Server response: " + JsonSerializer.Serialize(data),1);
                 TimeSpan duration;
                 TimeSpan timeTilBreak;
+                string trayString = "";
 
                 
-                if (data.nextBreak != 0)
+                if (data.nextBreak != -1)
                 {
                     // break early warning
                     if (data.freeTimeLeft < 300000 && !breakNotification)
@@ -305,6 +306,7 @@ namespace TomeScreenClient
                         breakNotification = false;
                     }
                     timeTilBreak = TimeSpan.FromMilliseconds(data.freeTimeLeft);
+                    trayString += "Next Break: " + timeTilBreak.ToString() + "\r\n";
                 } else {
                     timeTilBreak = TimeSpan.Zero;
                     FileLogger.Log("No break cofigured", 2);
@@ -315,15 +317,16 @@ namespace TomeScreenClient
                 {
                     duration = TimeSpan.FromMilliseconds(data.total * -1);
                     FileLogger.Log("getActivity data: " + duration.ToString(), 1);
-                    MyCustomApplicationContext.setTooltip("Total: -" + duration.ToString() + "\r\n Next Break: " + timeTilBreak.ToString());
+                    trayString += "Total: -" + duration.ToString();
                     LockWorkStation();
                 }
                 else
                 {
                     duration = TimeSpan.FromMilliseconds(data.total);
                     FileLogger.Log("getActivity data: " + duration.ToString(), 1);
-                    MyCustomApplicationContext.setTooltip("Total: " + duration.ToString() + "\r\n Next Break: " + timeTilBreak.ToString());
+                    trayString += "Total: " + duration.ToString();
                 }
+                MyCustomApplicationContext.setTooltip(trayString);
 
             } catch (Exception e) {
                 FileLogger.Log(e.Message, 1);
